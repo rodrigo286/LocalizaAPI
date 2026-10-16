@@ -1,10 +1,15 @@
-name: Build application
+name: Build and deploy Laravel to Azure Web App
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: apilocaliza
+  PHP_VERSION: '8.5'
+  NODE_VERSION: '24'
 
 jobs:
   build:
@@ -12,35 +17,22 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: ${{ env.PHP_VERSION }}
           extensions: mbstring, pdo_sqlite, sqlite3
           coverage: none
 
-      - name: Validate Composer configuration
-        run: composer validate --no-check-publish
-
       - name: Install PHP dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
-
-      - name: Prepare Laravel environment
-        run: |
-          cp .env.example .env
-          touch database/database.sqlite
-          php artisan key:generate
-
-      - name: Verify Laravel boot
-        run: php artisan about
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
-          node-version: '24'
-          cache: npm
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install frontend dependencies
         run: npm install
@@ -48,5 +40,44 @@ jobs:
       - name: Build frontend
         run: npm run build
 
-      - name: List API routes
-        run: php artisan route:list --path=api
+      - name: Prepare Laravel writable directories
+        run: |
+          mkdir -p storage/framework/cache/data
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+          mkdir -p storage/logs
+          mkdir -p bootstrap/cache
+
+      - name: Create deployment package
+        run: |
+          zip -r release.zip . \
+            -x '.git/*' \
+            -x '.github/*' \
+            -x 'node_modules/*' \
+            -x '.env' \
+            -x 'release.zip'
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: laravel-app
+          path: release.zip
+          retention-days: 1
+
+  deploy:
+    runs-on: ubuntu-24.04
+    needs: build
+
+    steps:
+      - name: Download deployment artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: laravel-app
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: release.zip

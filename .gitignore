@@ -4,3 +4,4 @@
 /public/build/
 /database/database.sqlite
 /storage/*.key
+/.dev
