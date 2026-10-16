@@ -1,0 +1,1 @@
+{"name":"workshop/localiza-copilot-api","type":"project","require":{"php":"^8.2","laravel/framework":"^12.0","inertiajs/inertia-laravel":"^2.0"},"require-dev":{"laravel/sail":"^1.0"},"scripts":{"post-autoload-dump":["Illuminate\\Foundation\\ComposerScripts::postAutoloadDump","@php artisan package:discover --ansi"]}}

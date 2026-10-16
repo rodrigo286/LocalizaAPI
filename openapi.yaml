@@ -1,0 +1,30 @@
+openapi: 3.0.3
+info:
+  title: Localiza Workshop API (Mock)
+  version: 1.0.0
+  description: API fictícia para demonstração em Copilot Studio; não oficial.
+servers:
+  - url: /api/v1
+paths:
+  /reservations:
+    post: {summary: Criar reserva, responses: {'201': {description: Reserva criada}, '422': {description: Dados inválidos}}}
+  /vehicles:
+    get: {summary: Listar frota disponível, parameters: [{name: page,in: query,schema: {type: integer}},{name: per_page,in: query,schema: {type: integer}}], responses: {'200': {description: Lista paginada}}}
+  /coupons/applications:
+    post: {summary: Aplicar cupom, responses: {'200': {description: Cupom aplicado}, '422': {description: Dados inválidos}}}
+  /vehicles/{id}/telemetry:
+    get: {summary: Consultar telemetria, parameters: [{name: id,in: path,required: true,schema: {type: string}}], responses: {'200': {description: Telemetria}}}
+  /vehicles/{id}/driver:
+    put: {summary: Vincular motorista, parameters: [{name: id,in: path,required: true,schema: {type: string}}], responses: {'200': {description: Motorista vinculado}}}
+  /vehicles/{id}/geofences:
+    post: {summary: Criar geofence, parameters: [{name: id,in: path,required: true,schema: {type: string}}], responses: {'201': {description: Geofence criada}}}
+  /claims:
+    post: {summary: Abrir sinistro, responses: {'201': {description: Sinistro aberto}}}
+  /maintenance-appointments:
+    post: {summary: Agendar manutenção, responses: {'201': {description: Manutenção agendada}}}
+  /vehicles/{id}/maintenance-history:
+    get: {summary: Histórico de manutenção, parameters: [{name: id,in: path,required: true,schema: {type: string}}], responses: {'200': {description: Histórico paginado}}}
+  /billing-statements:
+    get: {summary: Extrato financeiro, responses: {'200': {description: Extrato paginado}}}
+  /traffic-fines:
+    get: {summary: Listar multas, responses: {'200': {description: Multas paginadas}}}
