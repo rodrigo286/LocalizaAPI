@@ -1,16 +1,21 @@
 <?php
-use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\ApiController;
-Route::prefix('v1')->group(function () {
- Route::post('/reservations',[ApiController::class,'createReservation']);
- Route::get('/vehicles',[ApiController::class,'vehicles']);
- Route::post('/coupons/applications',[ApiController::class,'coupon']);
- Route::get('/vehicles/{id}/telemetry',[ApiController::class,'telemetry']);
- Route::put('/vehicles/{id}/driver',[ApiController::class,'driver']);
- Route::post('/vehicles/{id}/geofences',[ApiController::class,'geofence']);
- Route::post('/claims',[ApiController::class,'claim']);
- Route::post('/maintenance-appointments',[ApiController::class,'maintenance']);
- Route::get('/vehicles/{id}/maintenance-history',[ApiController::class,'history']);
- Route::get('/billing-statements',[ApiController::class,'billing']);
- Route::get('/traffic-fines',[ApiController::class,'fines']);
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('v1')->group(function (): void {
+    Route::post('/reservations', [ApiController::class, 'createReservation']);
+    Route::get('/vehicles', [ApiController::class, 'vehicles']);
+    Route::post('/coupons/applications', [ApiController::class, 'applyCoupon']);
+
+    Route::get('/vehicles/{vehicle}/telemetry', [ApiController::class, 'telemetry']);
+    Route::put('/vehicles/{vehicle}/driver', [ApiController::class, 'linkDriver']);
+    Route::post('/vehicles/{vehicle}/geofences', [ApiController::class, 'createGeofence']);
+
+    Route::post('/claims', [ApiController::class, 'createClaim']);
+    Route::post('/maintenance-appointments', [ApiController::class, 'scheduleMaintenance']);
+    Route::get('/vehicles/{vehicle}/maintenance-history', [ApiController::class, 'maintenanceHistory']);
+
+    Route::get('/billing-statements', [ApiController::class, 'billingStatements']);
+    Route::get('/traffic-fines', [ApiController::class, 'trafficFines']);
 });
